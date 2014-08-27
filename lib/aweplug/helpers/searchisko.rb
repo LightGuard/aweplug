@@ -45,7 +45,8 @@ module Aweplug
       #
       # Returns a new instance of Searchisko.
       def initialize opts={} 
-        unless [:searchisko_username, :searchisko_password].all? {|required| opts.key? required}
+        # We want to fail fast on missing or empty required options
+        unless ([:searchisko_username, :searchisko_password].all? {|required| opts.key? required}) && (opts[:searchisko_username].empty? || opts[:searchisko_password].empty?)
           raise 'Missing searchisko credentials'
         end
         @faraday = Faraday.new(:url => opts[:base_url]) do |builder|
@@ -73,15 +74,15 @@ module Aweplug
       # normalization - The id of the normalization to use
       # id - The id to normalize
       def normalize normalization, id
-        key = "normalization-#{normalization}-#{id}"
-        json = @cache.read(key)
-        if json.nil?
+        #key = "normalization-#{normalization}-#{id}"
+        #json = @cache.read(key)
+        #if json.nil?
           response = get "/normalization/#{normalization}/#{id}"
           if response.success?
             json = JSON.load(response.body)
-            @cache.write(key, json)
+            #@cache.write(key, json)
           end
-        end
+        #end
         yield json
       end
 
