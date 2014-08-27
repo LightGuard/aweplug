@@ -9,7 +9,6 @@ require 'aweplug/helpers/searchisko'
 require 'aweplug/helpers/searchisko_social'
 require 'json'
 require 'parallel'
-require 'pry'
 
 module Aweplug
   module Extensions
