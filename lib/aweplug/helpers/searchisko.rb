@@ -46,7 +46,7 @@ module Aweplug
       # Returns a new instance of Searchisko.
       def initialize opts={} 
         # We want to fail fast on missing or empty required options
-        unless ([:searchisko_username, :searchisko_password].all? {|required| opts.key? required}) && (opts[:searchisko_username].empty? || opts[:searchisko_password].empty?)
+        unless ((opts.key?(:searchisko_username) && opts.key?(:searchisko_password)) || (opts[:searchisko_username].empty? || opts[:searchisko_password].empty?))
           raise 'Missing searchisko credentials'
         end
         @faraday = Faraday.new(:url => opts[:base_url]) do |builder|
