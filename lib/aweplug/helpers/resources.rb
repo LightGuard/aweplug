@@ -207,6 +207,7 @@ module Aweplug
             uri = URI.parse(src_path)
             file_ext = File.extname(uri.path)
             if uri.scheme
+              puts "path - #{uri}"
               raw_content = Net::HTTP.get(uri)
               id = uri.host.gsub(/\./, '_')
             else

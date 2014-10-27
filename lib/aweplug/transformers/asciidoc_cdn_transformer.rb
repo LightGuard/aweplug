@@ -16,6 +16,7 @@ module Aweplug
           doc.css('img').each do |img|
             src = img['src'] 
             unless src.start_with? site.cdn_http_base
+              puts "transform path - #{src}"
               img['src'] = resource.path(src)
               altered = true
             end
