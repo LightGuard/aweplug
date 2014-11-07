@@ -94,6 +94,7 @@ module Aweplug
         base = (@recurse_subdirectories) ? File.join(@directory, '**') : @directory
         glob_paths << Dir.glob(File.join(base, '*.asciidoc'))
         glob_paths << Dir.glob(File.join(base, '*.adoc'))
+        glob_paths.flatten!
         glob_paths.reject! {|path| @additional_excludes.include?(File.basename path)}
 
         Parallel.each(glob_paths, :in_threads => (site.build_threads || 0)) do |path|
