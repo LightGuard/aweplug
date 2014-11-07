@@ -90,13 +90,13 @@ module Aweplug
                                                        :cache => cache,
                                                        :logger => site.log_faraday,
                                                        :searchisko_warnings => site.searchisko_warnings})
-        Find.find @directory do |path|
-          Find.prune if File.directory?(path) && !@recurse_subdirectories
+        glob_paths = []
+        base = (@recurse_subdirectories) ? File.join(@directory, '**') : @directory
+        glob_paths << Dir.glob(File.join(base, '*.asciidoc'))
+        glob_paths << Dir.glob(File.join(base, '*.adoc'))
+        glob_ptahs.reject! {|path| @additional_excludes.include?(File.basename path)}
 
-          next if File.directory?(path) # If it's a directory, start recursing
-
-          Find.prune if File.extname(path) !~ /\.a(scii)?doc/ || @additional_excludes.include?(File.basename path)
-
+        Parallel.each(glob_paths, :in_threads => (site.build_threads || 0)) do |path|
           # TODO: Skip adding the page to the site if it's already there
 
           page = site.engine.load_site_page path
