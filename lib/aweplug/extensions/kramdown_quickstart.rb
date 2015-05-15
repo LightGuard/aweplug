@@ -141,8 +141,6 @@ module Aweplug
         #
         # Returns nothing.
         def send_to_searchisko(searchisko, metadata, page, site, converted_html)
-          require 'pry'
-          binding.pry
           metadata[:searchisko_id] = Digest::SHA1.hexdigest(metadata[:title])[0..7]
           metadata[:searchisko_type] = 'jbossdeveloper_quickstart'
 
@@ -167,6 +165,9 @@ module Aweplug
             :git_download => metadata[:download]
               
           }
+
+          require 'pry'
+          binding.pry unless site.base_url.include? 'docker'
 
           searchisko.push_content(metadata[:searchisko_type], 
                                     metadata[:searchisko_id], 
