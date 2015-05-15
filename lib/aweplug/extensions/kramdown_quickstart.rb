@@ -76,7 +76,7 @@ module Aweplug
         def execute site
           cache = Aweplug::Cache.default site # default cache shouldn't matter here
 
-          Parallel.each(Dir["#{@repo}/*/README.md"], :in_threads => (site.build_threads || 0)) do |file|
+          Parallel.each(Dir["#{@repo}/*/README.md"], :in_threads => 0) do |file|
             searchisko = Aweplug::Helpers::Searchisko.new({:base_url => site.dcp_base_url, 
                                                            :authenticate => true, 
                                                            :searchisko_username => ENV['dcp_user'], 
@@ -141,6 +141,8 @@ module Aweplug
         #
         # Returns nothing.
         def send_to_searchisko(searchisko, metadata, page, site, converted_html)
+          require 'pry'
+          binding.pry
           metadata[:searchisko_id] = Digest::SHA1.hexdigest(metadata[:title])[0..7]
           metadata[:searchisko_type] = 'jbossdeveloper_quickstart'
 
