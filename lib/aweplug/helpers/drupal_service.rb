@@ -3,6 +3,7 @@ require 'aweplug/helpers/faraday'
 require 'logger'
 require 'json'
 require 'uri'
+require 'typhoeus'
 
 module Aweplug
   module Helpers
@@ -34,6 +35,8 @@ module Aweplug
         session_info = JSON.parse (login opts[:drupal_user], opts[:drupal_password]).body
         @cookie = "#{session_info['session_name']}=#{session_info['sessid']}"
         @token = token opts[:drupal_user], opts[:drupal_password]
+        @hydra = Typhoeus::Hydra.new
+        @base_url = opts[:base_url]
       end
 
       def send_page page, content
@@ -90,29 +93,60 @@ module Aweplug
       #   drupal.post "api", "node", {title: 'Hello', type: 'page'}
       #   # => Faraday Response
       def post endpoint, path, params = {}
-        resp = @faraday.post do |req|
-          req.url endpoint + "/" + path
-          req.headers['Content-Type'] = 'application/json'
-          req.headers['Accept'] = 'application/json'
-          req.headers['X-CSRF-Token'] = @token if @token
-          req.headers['Cookie'] = @cookie if @cookie
-          unless params.is_a? String
-            req.body = params.to_json
-          else
-            req.body = params
-          end
-          if @logger
-            @logger.debug "request body: #{req.body}"
+        body = nil
+        unless params.is_a? String
+          body = params.to_json
+        else
+          body = params
+        end
+
+        request = Typhoeus::Request.new(
+          "#{@base_url}/#{endpoint}/#{path}",
+          method: :post,
+          headers: {
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'X-CSRF-Token' => @token if @token,
+            'Cookie' => @cookie if @cookie
+          },
+          body: body 
+        )
+
+        request.on_complete do |resp|
+          if !resp.success?
+            @logger.debug "response body: #{resp.body}"
+            if $LOG.error
+              $LOG.error "Error making drupal request to '#{path}'. Status: #{resp.status}. Params: #{params}. Response body: #{resp.body}"
+            end
           end
         end
-        if !resp.success?
-          @logger.debug "response body: #{resp.body}"
-          if $LOG.error
-            $LOG.error "Error making drupal request to '#{path}'. Status: #{resp.status}. 
-Params: #{params}. Response body: #{resp.body}"
-          end
-        end
-        resp
+        @hydra.queue request
+        #resp = @faraday.post do |req|
+        #  req.url endpoint + "/" + path
+        #  req.headers['Content-Type'] = 'application/json'
+        #  req.headers['Accept'] = 'application/json'
+        #  req.headers['X-CSRF-Token'] = @token if @token
+        #  req.headers['Cookie'] = @cookie if @cookie
+        #  unless params.is_a? String
+        #    req.body = params.to_json
+        #  else
+        #    req.body = params
+        #  end
+        #  if @logger
+        #    @logger.debug "request body: #{req.body}"
+        #  end
+        #end
+        #if !resp.success?
+        #  @logger.debug "response body: #{resp.body}"
+        #  if $LOG.error
+        #    $LOG.error "Error making drupal request to '#{path}'. Status: #{resp.status}. Params: #{params}. Response body: #{resp.body}"
+        #  end
+        #end
+        #resp
+      end
+
+      def run_parallel
+        @hydra.run
       end
 
       # Public: Perform an HTTP PUT to drupal.
