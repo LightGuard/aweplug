@@ -100,15 +100,18 @@ module Aweplug
           body = params
         end
 
+        headers = {
+          'Content-Type' => 'application/json',
+          'Accept' => 'application/json',
+        }
+
+        headers['X-CSRF-Token'] = @token if @token,
+        headers['Cookie'] = @cookie if @cookie
+
         request = Typhoeus::Request.new(
           "#{@base_url}/#{endpoint}/#{path}",
           method: :post,
-          headers: {
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'X-CSRF-Token' => @token if @token,
-            'Cookie' => @cookie if @cookie
-          },
+          headers: headers,
           body: body 
         )
 
