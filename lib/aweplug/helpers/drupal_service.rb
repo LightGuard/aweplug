@@ -105,7 +105,7 @@ module Aweplug
           'Accept' => 'application/json',
         }
 
-        headers['X-CSRF-Token'] = @token if @token,
+        headers['X-CSRF-Token'] = @token if @token
         headers['Cookie'] = @cookie if @cookie
 
         request = Typhoeus::Request.new(
