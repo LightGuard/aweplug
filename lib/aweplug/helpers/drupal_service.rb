@@ -35,7 +35,9 @@ module Aweplug
         session_info = JSON.parse (login opts[:drupal_user], opts[:drupal_password]).body
         @cookie = "#{session_info['session_name']}=#{session_info['sessid']}"
         @token = token opts[:drupal_user], opts[:drupal_password]
-        @hydra = Typhoeus::Hydra.hydra
+        require 'pry'
+        binding.pry
+        @hydra = Typhoeus::Hydra.new
         @base_url = opts[:base_url]
       end
 
