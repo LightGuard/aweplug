@@ -5,6 +5,7 @@ require 'logger'
 require 'json'
 require 'uri'
 require 'aweplug/middleware/statuslogger'
+require 'pry'
 
 # WARNING: monkey patching faraday
 # TODO: See if we can get the new refinements to work
@@ -184,6 +185,7 @@ module Aweplug
       #   searchisko.post "rating/#{searchisko_document_id}", {rating: 3}
       #   # => Faraday Response
       def post path, params = {}
+        binding.pry
         resp = @faraday.post do |req|
           req.url "/v1/rest/" + path
           req.headers['Content-Type'] = 'application/json'
