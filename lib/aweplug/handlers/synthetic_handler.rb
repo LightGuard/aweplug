@@ -20,10 +20,11 @@ module Aweplug
       # site    - awestruct Site object.
       # content - Content for the page, must respond to t_s.
       # path    - output Path or String location for the generated page.
-      def initialize site, content, path
+      # mtime   - Time object representing the mtime of the handler wrapper
+      def initialize site, content, path, mtime = DateTime.now.to_time
         super(site)
         @content = content
-        @input_mtime = DateTime.now.to_time
+        @input_mtime = mtime
 
         case (path)
         when Pathname
