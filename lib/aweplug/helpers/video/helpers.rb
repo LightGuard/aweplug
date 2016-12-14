@@ -53,7 +53,7 @@ module Aweplug
                                         ::Awestruct::Handlers::LayoutHandler.new(site,
                                         ::Awestruct::Handlers::TiltHandler.new(site,
                                           ::Aweplug::Handlers::SyntheticHandler.new(site, '', page_path,
-                                                                                    video.modified_date))))
+                                                                                    video.modified_date.to_time))))
           page.layout = site.video_layout || 'video_page'
           page.output_path = page_path
           page.stale_output_callback = ->(p) { return (File.exist?(p.output_path) && File.mtime(__FILE__) > File.mtime(p.output_path)) }
